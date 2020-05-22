@@ -1,0 +1,11 @@
+.counter-container {
+  padding: 5px;
+  display: flex;
+  margin: auto;
+  border-bottom: 2px solid #aeaeae;
+}
+
+.counter-container > div {
+  margin: auto;
+  font-size: 2em;
+}
