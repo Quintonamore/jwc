@@ -22,5 +22,5 @@ deploy:
   region: us-west-2
   skip_cleanup: true
   on:
-    branch: prod
+    branch: master
 
