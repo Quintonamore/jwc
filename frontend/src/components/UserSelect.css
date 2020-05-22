@@ -1,4 +1,4 @@
-.countries {
+.users {
   width: 50%;
   font-size: 3em;
   display: flex;
@@ -10,12 +10,12 @@
   overflow: scroll;
 }
 
-.countries * {
+.users * {
   padding: 10px;
   cursor: pointer;
 }
 
-.countries *:hover {
+.users *:hover {
   color: #fff;
   background: #000;
 }

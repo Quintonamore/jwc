@@ -1,16 +1,26 @@
 import React from 'react';
 import './CountrySelect.css';
 
-const Countries = [
-  "USA",
+const countries = [
   "Japan",
-  "Spain"
+  "USA",
+  "France",
+  "Japan 2",
+  "Spain",
+  "Morocco",
+  "Country Name 7",
+  "Country Music Star Bob Dylan"
 ];
 
 class CountrySelect extends React.Component {
   render() {
+    // Build Country List
+    const countryList = [];
+    countries.forEach(country => countryList.push(<div key={country}>{country}</div>));
     return (
-      <div class="countries"></div>
+      <div className="countries">
+        {countryList}
+      </div>
     );
   }
 }

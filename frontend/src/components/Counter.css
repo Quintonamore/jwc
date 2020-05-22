@@ -3,6 +3,7 @@
   display: flex;
   margin: auto;
   border-bottom: 2px solid #aeaeae;
+  user-select: none;
 }
 
 .counter-container > div {
