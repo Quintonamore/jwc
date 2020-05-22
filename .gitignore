@@ -1,2 +1,5 @@
 node_modules
 *.swp
+build
+dist
+*.log
