@@ -14,14 +14,15 @@ const users = [
   "Elise",
   "Alan Jackson",
   "Lefty Frizzel",
-  "Merle Haggard"
+  "Merle Haggard",
+  "Keith Whitley"
 ];
 
 class UserSelect extends React.Component {
   render() {
     // Build User List
     const userList = [];
-    users.forEach(user => userList.push(<div key={user}>{user}</div>));
+    users.forEach(user => userList.push(<div key={user} onClick={this.props.giveDrink}>{user}</div>));
     return (
       <div className="users">
         {userList}

@@ -15,7 +15,8 @@
   cursor: pointer;
 }
 
-.countries *:hover {
+.countries *:hover,
+.countries *.selected{
   color: #fff;
   background: #000;
 }
