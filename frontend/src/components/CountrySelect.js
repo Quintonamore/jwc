@@ -13,8 +13,8 @@ const countries = [
 ];
 
 class CountrySelect extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       vote: null
     };
@@ -23,7 +23,12 @@ class CountrySelect extends React.Component {
   render() {
     // Build Country List
     const countryList = [];
-    countries.forEach(country => countryList.push(<div key={country} className={this.state.vote === country ? 'selected' : ''} onClick={() => this.setState({ vote: country })}>{country}</div>));
+    const generateJSXListItem = country => countryList.push(<div key={country} className={this.state.vote === country ? 'selected' : ''} onClick={() => this.setState({ vote: country })}>{country}</div>);
+    if (this.props.countries) {
+      this.props.countries.forEach(generateJSXListItem);
+    } else {
+      countries.forEach(generateJSXListItem);
+    }
     return (
       <div className="countries">
         {countryList}

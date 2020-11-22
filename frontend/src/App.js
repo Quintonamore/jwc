@@ -2,14 +2,33 @@ import React from 'react';
 import Counter from './components/Counter';
 import CountrySelect from './components/CountrySelect';
 import UserSelect from './components/UserSelect';
+import GameSelect from './components/GameSelect';
 import './App.css';
 
 class App extends React.Component {
+
+  ws = new WebSocket("ws://localhost:8080");
+
   constructor(props) {
     super(props);
     this.state = {
-      toDrink: 5,
-      toGive: 2
+      globalGameList: [],
+      isGameOwner: false,
+      gameId: '',
+      countries: [],
+      toDrink: 0,
+      toGive: 0
+    };
+  }
+
+  componentDidMount() {
+    this.ws.onmessage = ev => {
+      const globalGameList = JSON.parse(ev.data);
+      const stateCpy = {};
+      Object.assign(stateCpy, this.state);
+      stateCpy.globalGameList = globalGameList;
+      this.setState(stateCpy);
+      console.log(globalGameList);
     };
   }
 
@@ -18,14 +37,35 @@ class App extends React.Component {
     this.setState(state => { return {toDrink: state.toDrink, toGive: state.toGive - 1}});
   }
 
+  selectGame = game => {
+    const stateCpy = {};
+    Object.assign(stateCpy, this.state);
+    stateCpy.gameId = game.id;
+    this.setState(stateCpy);
+  }
+
   render() {
-    return (
-      <div className="App">
+    const gamePage = (
+      <div>
         <Counter toDrink={this.state.toDrink} toGive={this.state.toGive}/>
         <div className="user-country-container">
-          <CountrySelect/>
+          <CountrySelect countries={this.state.countries}/>
           <UserSelect giveDrink={this.decrimentDrinks}/>
         </div>
+      </div>
+    );
+
+    const setupPage = (
+      <div>
+        <GameSelect selectGame={this.selectGame} gameList={this.state.globalGameList} />
+      </div>
+    );
+
+    const renderedPage = this.state.gameId ? gamePage : setupPage;
+
+    return (
+      <div className="App">
+        {renderedPage}
       </div>
     );
   }
