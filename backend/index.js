@@ -5,12 +5,14 @@ const crypto = require('crypto');
 const wss = new WebSocket.Server({ port: 8080 });
 const games = new Map();
 
-games.set('lol', { gameName: 'howdy', password: 'shoot', countries: ['Sexytown']});
+games.set('lol', { gameName: 'howdy', password: 'shoot', countries: ['Washington']});
+games.set('hi', { gameName: 'Erikas Game', password: 'shoot', countries: ['Washington', 'Texas']});
 
 function generateIdNameList() {
   const idNameList = [];
   for (key of games.keys()) {
-    idNameList.push({id: key, name: games.get(key).gameName});
+    const tempGame = games.get(key);
+    idNameList.push({id: key, name: tempGame.gameName, countries: tempGame.countries});
   }
   return idNameList;
 }
