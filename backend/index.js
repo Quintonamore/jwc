@@ -5,38 +5,57 @@ const crypto = require('crypto');
 const wss = new WebSocket.Server({ port: 8080 });
 const games = new Map();
 
-games.set('lol', { gameName: 'howdy', password: 'shoot', countries: ['Washington']});
-games.set('hi', { gameName: 'Erikas Game', password: 'shoot', countries: ['Washington', 'Texas']});
-
 function generateIdNameList() {
   const idNameList = [];
   for (key of games.keys()) {
     const tempGame = games.get(key);
-    idNameList.push({id: key, name: tempGame.gameName, countries: tempGame.countries});
+    idNameList.push({id: key, ...tempGame});
   }
   return idNameList;
 }
 
+
 wss.on('connection', function connection(ws) {
-  ws.on('message', function incoming(message) {
-    console.log('received: %s', message);
-  });
 
   /**
    * Expecting a newGameObj JSON with the following properties
    *  gameName  - string
-   *  countries - array
-   *  password  - string
    */
-  ws.on('new', function incoming(newGameObj) {
-    const gameInfo = JSON.parse(newGameObj);
+  function newGame(gameInfo) {
     const id = crypto.randomBytes(16).toString("hex");
+    gameInfo.createdAt = Date.now();
+    gameInfo.countries = [];
+    gameInfo.users = [];
+    delete gameInfo.action;
     games.set(id, gameInfo);
-  });
+    sendGames();
+  }
 
-  ws.on('getgames', function incoming(message) {
+  function sendGames() {
     ws.send(JSON.stringify(generateIdNameList()));
+  }
+
+  function modify(data) {
+    games.set(data.id, data);
+  }
+
+  ws.on('message', function incoming(message) {
+    console.log('received: %s', message);
+    const data = JSON.parse(message);
+    switch (data.action) {
+      case 'newGame':
+        newGame(data);
+      case 'refresh':
+        sendGames();
+        break;
+      case 'modify':
+        modify(data);
+      default:
+        sendGames();
+        break;
+    }
   });
 
+  // On successful connection send server list
   ws.send(JSON.stringify(generateIdNameList()));
 });
