@@ -3,6 +3,8 @@ import Counter from "./components/Counter";
 import CountrySelect from "./components/CountrySelect";
 import UserSelect from "./components/UserSelect";
 import GameSelect from "./components/GameSelect";
+import NewGame from "./components/NewGame";
+import NewCountry from "./components/NewCountry";
 import "./App.css";
 
 class App extends React.Component {
@@ -14,7 +16,6 @@ class App extends React.Component {
       globalGameList: [],
       isGameOwner: false,
       gameId: "",
-      countries: [],
       toDrink: 0,
       toGive: 0,
     };
@@ -45,12 +46,23 @@ class App extends React.Component {
     this.setState(stateCpy);
   };
 
+  getSelectedGameData = () => {
+    return this.state.globalGameList.find(
+      (toCheck) => toCheck.id === this.state.gameId
+    );
+  };
+
+  getPropertyFromGame = (property, backup) => {
+    if (this.state.gameId) return this.getSelectedGameData()[property];
+    else return backup;
+  };
+
   fetchCountries = () => {
-    if (this.state.gameId)
-      return this.state.globalGameList.find(
-        (toCheck) => toCheck.id === this.state.gameId
-      ).countries;
-    else return [];
+    return this.getPropertyFromGame("countries", []);
+  };
+
+  fetchUsers = () => {
+    return this.getPropertyFromGame("users", []);
   };
 
   render() {
@@ -59,7 +71,13 @@ class App extends React.Component {
         <Counter toDrink={this.state.toDrink} toGive={this.state.toGive} />
         <div className="user-country-container">
           <CountrySelect countries={this.fetchCountries()} />
-          <UserSelect giveDrink={this.decrimentDrinks} />
+          <UserSelect
+            users={this.fetchUsers()}
+            giveDrink={this.decrimentDrinks}
+          />
+        </div>
+        <div className="settings-bin">
+          <NewCountry ws={this.ws} gameData={this.getSelectedGameData()} />
         </div>
       </div>
     );
@@ -70,6 +88,7 @@ class App extends React.Component {
           selectGame={this.selectGame}
           gameList={this.state.globalGameList}
         />
+        <NewGame ws={this.ws} />
       </div>
     );
 
