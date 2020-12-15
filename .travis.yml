@@ -13,14 +13,12 @@ script:
   - CI=false npm run build
 
 deploy:
-  provider: s3
-  access_key_id: $AWS_ACCESS_KEY_ID
-  secret_access_key: $AWS_SECRET_ACCESS_KEY
+  provider: gcs
+  access_key_id: $GCS_ACCESS_KEY_ID
+  secret_access_key: $GCS_SECRET_ACCESS_KEY
   bucket: jwc.quinton.pizza
   local_dir: build
   acl: public_read
-  region: us-west-2
   skip_cleanup: true
   on:
     branch: master
-
