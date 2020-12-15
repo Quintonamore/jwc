@@ -1,0 +1,24 @@
+language: node_js
+dist: trusty
+
+node_js: '12'
+cache: npm
+
+before_install: cd frontend
+
+install:
+  - npm i
+
+script:
+  - CI=false npm run build
+
+deploy:
+  provider: gcs
+  access_key_id: $GCS_ACCESS_KEY_ID
+  secret_access_key: $GCS_SECRET_ACCESS_KEY
+  bucket: "jwc.quinton.pizza"
+  local_dir: build
+  acl: public_read
+  skip_cleanup: true
+  on:
+    branch: master
