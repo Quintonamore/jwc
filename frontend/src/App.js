@@ -149,6 +149,14 @@ class App extends React.Component {
     this.ws.send(JSON.stringify(modifyObject));
   };
 
+  updateSelection = (countryName) => {
+    const modifyObject = {
+      action: "vote",
+      selectedCountry: countryName,
+    };
+    this.ws.send(JSON.stringify(modifyObject));
+  };
+
   render() {
     const gameMaster = this.state.gameMaster;
     const gamePage = (
@@ -162,6 +170,8 @@ class App extends React.Component {
           <CountrySelect
             gameMaster={gameMaster}
             countries={this.fetchCountries()}
+            updateSelection={this.updateSelection}
+            ws={this.ws}
           />
           <UserSelect
             users={this.fetchUsers()}
@@ -178,7 +188,6 @@ class App extends React.Component {
               Clear Countries
             </button>
           ) : null}
-          {gameMaster ? <button>End Race</button> : null}
         </div>
       </div>
     );
