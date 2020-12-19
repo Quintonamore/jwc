@@ -10,3 +10,10 @@
   margin: auto;
   font-size: 2em;
 }
+
+.drink-logo {
+  max-height: 40px;
+  vertical-align: bottom;
+  padding-left: 20px;
+  cursor: pointer;
+}

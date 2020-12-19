@@ -9,16 +9,10 @@ const THRESHOLD = 6400;
 
 function User(name, gameId) {
   this.name = name;
-  this.gameId = gameId
-}
-
-function generateIdNameList() {
-  const idNameList = [];
-  for (key of games.keys()) {
-    const tempGame = games.get(key);
-    idNameList.push({id: key, ...tempGame, users: users.filter(comp => comp.gameId === key)});
-  }
-  return idNameList;
+  this.gameId = gameId;
+  this.selectedCountry = "";
+  this.toGive = 5;
+  this.toDrink = 0;
 }
 
 wss.on('connection', function connection(ws) {
@@ -44,6 +38,18 @@ wss.on('connection', function connection(ws) {
     sendGames();
   }
 
+  function generateIdNameList() {
+    const idNameList = [];
+    // User data is first value in array
+    // Added here, because I am lazy & we're updating the client 100%
+    idNameList.push(connectionUser);
+    for (key of games.keys()) {
+      const tempGame = games.get(key);
+      idNameList.push({id: key, ...tempGame, users: users.filter(comp => comp.gameId === key)});
+    }
+    return idNameList;
+  }
+
   function sendGames() {
     ws.send(JSON.stringify(generateIdNameList()));
   }
@@ -59,6 +65,21 @@ wss.on('connection', function connection(ws) {
 
   function updateName(data) {
     connectionUser.name = data.name;
+  }
+
+  function drink(data) {
+    const target = users.find(comp => {
+      if (!comp) return false;
+      return comp.name === data.target && comp.gameId === connectionUser.gameId;
+    });
+    if (target) {
+      connectionUser.toGive -= 1;
+      target.toDrink += 1;
+    }
+  }
+
+  function drank() {
+    connectionUser.toDrink -= 1;
   }
 
   ws.on('message', function incoming(message) {
@@ -77,10 +98,15 @@ wss.on('connection', function connection(ws) {
       case 'updateName':
         updateName(data);
         break;
+      case 'drink':
+        drink(data);
+        break;
+      case 'drank':
+        drank();
+        break;
       default:
         break;
     }
-    sendGames();
   });
 
   ws.on('close', function clear() {

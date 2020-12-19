@@ -37,9 +37,13 @@ class App extends React.Component {
   componentDidMount() {
     this.ws.onmessage = (ev) => {
       const globalGameList = JSON.parse(ev.data);
+      // Get server user data & delete from list
+      const userUpdate = globalGameList.shift();
       const stateCpy = {};
       Object.assign(stateCpy, this.state);
       stateCpy.globalGameList = globalGameList;
+      stateCpy.toDrink = userUpdate.toDrink;
+      stateCpy.toGive = userUpdate.toGive;
       this.setState(stateCpy);
     };
     this.ws.onopen = (ev) => {
@@ -54,13 +58,30 @@ class App extends React.Component {
         this.setState(stateCpy);
       }
     };
+    this.ws.onclose = (ev) => {
+      const stateCpy = {};
+      Object.assign(stateCpy, this.state);
+      stateCpy.gameId = "";
+      stateCpy.globalGameList = [];
+      this.setState(stateCpy);
+    };
   }
 
-  decrimentDrinks = () => {
+  decrimentDrinks = (nameToGiveDrink) => {
     if (this.state.toGive <= 0) return;
-    this.setState((state) => {
-      return { toDrink: state.toDrink, toGive: state.toGive - 1 };
-    });
+    const modifyObject = {
+      action: "drink",
+      target: nameToGiveDrink,
+    };
+    this.ws.send(JSON.stringify(modifyObject));
+  };
+
+  decrementOwn = () => {
+    if (this.state.toDrink <= 0) return;
+    const modifyObject = {
+      action: "drank",
+    };
+    this.ws.send(JSON.stringify(modifyObject));
   };
 
   clearCountries = () => {
@@ -132,7 +153,11 @@ class App extends React.Component {
     const gameMaster = this.state.gameMaster;
     const gamePage = (
       <div>
-        <Counter toDrink={this.state.toDrink} toGive={this.state.toGive} />
+        <Counter
+          toDrink={this.state.toDrink}
+          toGive={this.state.toGive}
+          decrementOwn={this.decrementOwn}
+        />
         <div className="user-country-container">
           <CountrySelect
             gameMaster={gameMaster}
