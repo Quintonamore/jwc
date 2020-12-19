@@ -7,6 +7,7 @@ import NewGame from "./components/NewGame";
 import NewCountry from "./components/NewCountry";
 import SetName from "./components/SetName";
 import "./App.css";
+import trashBin from "./images/wastebucket.png";
 
 const USER = "jwc-user";
 const GAME = "jwc-game";
@@ -157,6 +158,13 @@ class App extends React.Component {
     this.ws.send(JSON.stringify(modifyObject));
   };
 
+  deleteGame = () => {
+    const modifyObject = {
+      action: "delete",
+    };
+    this.ws.send(JSON.stringify(modifyObject));
+  };
+
   render() {
     const gameMaster = this.state.gameMaster;
     const gamePage = (
@@ -187,6 +195,13 @@ class App extends React.Component {
             <button type="submit" onClick={() => this.clearCountries()}>
               Clear Countries
             </button>
+          ) : null}
+          {gameMaster ? (
+            <img
+              src={trashBin}
+              onClick={() => this.deleteGame()}
+              alt="Delete This Game!"
+            />
           ) : null}
         </div>
       </div>

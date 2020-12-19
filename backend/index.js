@@ -1,5 +1,6 @@
 const WebSocket = require('ws');
 const crypto = require('crypto');
+const { ENGINE_METHOD_PKEY_ASN1_METHS } = require('constants');
 
 // Server init and Games Map init
 const wss = new WebSocket.Server({ port: 8080 });
@@ -37,7 +38,6 @@ wss.on('connection', function connection(ws) {
     gameInfo.countries = [];
     delete gameInfo.action;
     games.set(id, gameInfo);
-    sendGames();
   }
 
   function generateIdNameList() {
@@ -113,6 +113,11 @@ wss.on('connection', function connection(ws) {
     })
   }
 
+  function endGame() {
+    games.delete(connectionUser.gameId);
+    connectionUser.gameId = "";
+  }
+
   ws.on('message', function incoming(message) {
     console.log('received: %s', message);
     const data = JSON.parse(message);
@@ -140,6 +145,9 @@ wss.on('connection', function connection(ws) {
         break;
       case 'calculate':
         calculateDrinksFromRaceResults(data);
+        break;
+      case 'delete':
+        endGame();
         break;
       default:
         break;
