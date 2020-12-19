@@ -41,7 +41,6 @@ wss.on('connection', function connection(ws) {
     gameInfo.countries = [];
     delete gameInfo.action;
     games.set(id, gameInfo);
-    connectionUser.gameId = id;
     sendGames();
   }
 
