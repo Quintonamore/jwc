@@ -10,22 +10,26 @@ import "./App.css";
 
 const USER = "jwc-user";
 const GAME = "jwc-game";
+const DRINKING = "jwc=drinks";
+const TO_GIVE = "jwc-to-give";
 const IS_PROD = process.env.NODE_ENV === "production";
 
 class App extends React.Component {
   ws = new WebSocket(
-    IS_PROD ? "ws://jwcserver.quinton.pizza:8080" : "ws://localhost:8080"
+    IS_PROD ? "ws://jwcserver.quinton.pizza:8080" : "ws://192.168.1.134:8080"
   );
 
   constructor(props) {
     super(props);
+    const storageToDrink = sessionStorage.getItem(DRINKING);
+    const storageToGive = sessionStorage.getItem(TO_GIVE);
     this.state = {
       globalGameList: [],
       isGameOwner: false,
       gameId: sessionStorage.getItem(GAME),
       userName: sessionStorage.getItem(USER),
-      toDrink: 0,
-      toGive: 0,
+      toDrink: storageToDrink ? storageToDrink : 0,
+      toGive: storageToGive ? storageToGive : 0,
       gameMaster: false,
     };
   }
@@ -57,6 +61,18 @@ class App extends React.Component {
     this.setState((state) => {
       return { toDrink: state.toDrink, toGive: state.toGive - 1 };
     });
+  };
+
+  clearCountries = () => {
+    const selectedGame = this.getSelectedGameData();
+    selectedGame.countries = [];
+
+    const modifyObject = {
+      action: "modify",
+      ...selectedGame,
+    };
+
+    this.ws.send(JSON.stringify(modifyObject));
   };
 
   selectGame = (game) => {
@@ -118,7 +134,10 @@ class App extends React.Component {
       <div>
         <Counter toDrink={this.state.toDrink} toGive={this.state.toGive} />
         <div className="user-country-container">
-          <CountrySelect countries={this.fetchCountries()} />
+          <CountrySelect
+            gameMaster={gameMaster}
+            countries={this.fetchCountries()}
+          />
           <UserSelect
             users={this.fetchUsers()}
             giveDrink={this.decrimentDrinks}
@@ -129,6 +148,12 @@ class App extends React.Component {
             <NewCountry ws={this.ws} gameData={this.getSelectedGameData()} />
           ) : null}
           <SetName name={this.state.userName} updateName={this.updateName} />
+          {gameMaster ? (
+            <button type="submit" onClick={() => this.clearCountries()}>
+              Clear Countries
+            </button>
+          ) : null}
+          {gameMaster ? <button>End Race</button> : null}
         </div>
       </div>
     );

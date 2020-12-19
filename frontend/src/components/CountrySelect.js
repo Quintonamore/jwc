@@ -1,5 +1,5 @@
-import React from 'react';
-import './CountrySelect.css';
+import React from "react";
+import "./CountrySelect.css";
 
 const countries = [
   "Japan",
@@ -9,31 +9,39 @@ const countries = [
   "Spain",
   "Morocco",
   "Country Name 7",
-  "Country Music Star Bob Dylan"
+  "Country Music Star Bob Dylan",
 ];
 
 class CountrySelect extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      vote: null
+      vote: null,
     };
   }
 
   render() {
     // Build Country List
+    const gameMaster = this.props.gameMaster;
     const countryList = [];
-    const generateJSXListItem = country => countryList.push(<div key={country} className={this.state.vote === country ? 'selected' : ''} onClick={() => this.setState({ vote: country })}>{country}</div>);
+    const generateJSXListItem = (country) => {
+      const ordering = gameMaster ? <input type="number" /> : null;
+      return countryList.push(
+        <div
+          key={country}
+          className={this.state.vote === country ? "selected" : ""}
+          onClick={() => this.setState({ vote: country })}
+        >
+          {ordering} {country}
+        </div>
+      );
+    };
     if (this.props.countries) {
       this.props.countries.forEach(generateJSXListItem);
     } else {
       countries.forEach(generateJSXListItem);
     }
-    return (
-      <div className="countries">
-        {countryList}
-      </div>
-    );
+    return <div className="countries">{countryList}</div>;
   }
 }
 
