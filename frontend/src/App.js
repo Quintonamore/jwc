@@ -5,19 +5,28 @@ import UserSelect from "./components/UserSelect";
 import GameSelect from "./components/GameSelect";
 import NewGame from "./components/NewGame";
 import NewCountry from "./components/NewCountry";
+import SetName from "./components/SetName";
 import "./App.css";
 
+const USER = "jwc-user";
+const GAME = "jwc-game";
+const IS_PROD = process.env.NODE_ENV === "production";
+
 class App extends React.Component {
-  ws = new WebSocket("ws://localhost:8080");
+  ws = new WebSocket(
+    IS_PROD ? "ws://jwcserver.quinton.pizza:8080" : "ws://localhost:8080"
+  );
 
   constructor(props) {
     super(props);
     this.state = {
       globalGameList: [],
       isGameOwner: false,
-      gameId: "",
+      gameId: sessionStorage.getItem(GAME),
+      userName: sessionStorage.getItem(USER),
       toDrink: 0,
       toGive: 0,
+      gameMaster: false,
     };
   }
 
@@ -28,7 +37,18 @@ class App extends React.Component {
       Object.assign(stateCpy, this.state);
       stateCpy.globalGameList = globalGameList;
       this.setState(stateCpy);
-      console.log(globalGameList);
+    };
+    this.ws.onopen = (ev) => {
+      if (this.state.userName) this.updateName(this.state.userName);
+      if (
+        this.state.gameId &&
+        !this.state.globalGameList.find((p) => p.id === this.state.gameId)
+      ) {
+        const stateCpy = {};
+        Object.assign(stateCpy, this.state);
+        stateCpy.gameId = "";
+        this.setState(stateCpy);
+      }
     };
   }
 
@@ -43,7 +63,17 @@ class App extends React.Component {
     const stateCpy = {};
     Object.assign(stateCpy, this.state);
     stateCpy.gameId = game.id;
+    sessionStorage.setItem(GAME, game.id);
+    if (!game.users.length) {
+      stateCpy.gameMaster = true;
+    }
     this.setState(stateCpy);
+
+    const modifyObject = {
+      action: "joinGame",
+      gameId: game.id,
+    };
+    this.ws.send(JSON.stringify(modifyObject));
   };
 
   getSelectedGameData = () => {
@@ -53,8 +83,11 @@ class App extends React.Component {
   };
 
   getPropertyFromGame = (property, backup) => {
-    if (this.state.gameId) return this.getSelectedGameData()[property];
-    else return backup;
+    try {
+      return this.getSelectedGameData()[property];
+    } catch (e) {
+      return backup;
+    }
   };
 
   fetchCountries = () => {
@@ -65,7 +98,22 @@ class App extends React.Component {
     return this.getPropertyFromGame("users", []);
   };
 
+  updateName = (userName) => {
+    const stateCpy = {};
+    Object.assign(stateCpy, this.state);
+    stateCpy.userName = userName;
+    sessionStorage.setItem(USER, userName);
+    this.setState(stateCpy);
+
+    const modifyObject = {
+      action: "updateName",
+      name: userName,
+    };
+    this.ws.send(JSON.stringify(modifyObject));
+  };
+
   render() {
+    const gameMaster = this.state.gameMaster;
     const gamePage = (
       <div>
         <Counter toDrink={this.state.toDrink} toGive={this.state.toGive} />
@@ -77,7 +125,10 @@ class App extends React.Component {
           />
         </div>
         <div className="settings-bin">
-          <NewCountry ws={this.ws} gameData={this.getSelectedGameData()} />
+          {gameMaster ? (
+            <NewCountry ws={this.ws} gameData={this.getSelectedGameData()} />
+          ) : null}
+          <SetName name={this.state.userName} updateName={this.updateName} />
         </div>
       </div>
     );

@@ -11,8 +11,7 @@ class NewCountry extends React.Component {
   }
 
   handleChange(event) {
-    this.state.countryName = event.target.value;
-    this.setState(this.state);
+    this.setState({ countryName: event.target.value });
   }
 
   handleSubmit(event) {
@@ -26,6 +25,7 @@ class NewCountry extends React.Component {
 
     // Reset Country Name Input
     this.setState({ countryName: "" });
+    console.log(this.state.countryName);
   }
 
   render() {

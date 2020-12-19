@@ -7,8 +7,8 @@ class UserSelect extends React.Component {
     const userList = [];
     this.props.users.forEach((user) =>
       userList.push(
-        <div key={user} onClick={this.props.giveDrink}>
-          {user}
+        <div key={user.name} onClick={this.props.giveDrink}>
+          {user.name}
         </div>
       )
     );
