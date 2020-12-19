@@ -6,6 +6,7 @@ const wss = new WebSocket.Server({ port: 8080 });
 const games = new Map();
 const users = [];
 const THRESHOLD = 6400;
+const CYRUS_REGEX = /cyrus/gmi;
 
 function User(name, gameId) {
   this.name = name;
@@ -65,6 +66,9 @@ wss.on('connection', function connection(ws) {
   }
 
   function updateName(data) {
+    if (CYRUS_REGEX.test(data.name)) {
+      connectionUser.toDrink += 2;
+    }
     connectionUser.name = data.name;
   }
 
